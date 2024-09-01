@@ -15,25 +15,29 @@ jmp $
 
 HelloWorld:
 	mov ah, 0eh ; AH + AL = AX
-	mov al, 48h
+	mov al, 48h ; H
 	int 10h
-	mov al, 65h
+	mov al, 65h ; e
 	int 10h
-	mov al, 6ch
+	mov al, 6ch ; l
 	int 10h
-	mov al, 6ch
+	mov al, 6ch ; l
 	int 10h
-	mov al, 20h
+	mov al, 6fh ; o
 	int 10h
-	mov al, 57h
+	mov al, 20h ; space
 	int 10h
-	mov al, 6fh
+	mov al, 57h ; W 
 	int 10h
-	mov al, 72h
+	mov al, 6fh ; o
 	int 10h
-	mov al, 6ch
+	mov al, 72h ; r
 	int 10h
-	mov al, 64h
+	mov al, 6ch ; l
+	int 10h
+	mov al, 64h ; d
+	int 10h
+	mov al, 21h ; !
 	int 10h
 	ret
 
