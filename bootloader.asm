@@ -6,7 +6,7 @@ jmp 0800h:0000h
 
 LoadSystem:
 	mov ah, 02h   ; read disk
-	mov al, 1     ; number of sectors
+	mov al, 1     ; number of sectors of disk to load
 	mov ch, 0     ; track zero
 	mov cl, 2     ; sector to read
 	mov dh, 0     ; head zero

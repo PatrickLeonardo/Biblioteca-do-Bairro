@@ -13,8 +13,15 @@ Create the disk image (512 bytes)
 ```
 dd if=boot.bin of=boot.img bs=512
 ```
-Or, just run
 
+Or, just run
 ```
 sudo chmod +x ./assembler.sh && ./assembler.sh
+```
+
+<hr>
+
+Create a USB shortcut for virtual machine
+```
+VBoxManage internalcommands createrawvmdk -filename "./usb.vmdk" -rawdisk /dev/sda
 ```

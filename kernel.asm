@@ -13,6 +13,7 @@ OSMain:
 	call ConfigSegment
 	call ConfigStack
 	call TEXT.SetVideoMode
+	call BackColor
 	jmp ShowString
 
 ShowString:
@@ -21,6 +22,8 @@ ShowString:
 	call MoveCursor ; move to (3, 2)
 	mov si, Welcome
 	call PrintString
+	mov ah, 00
+	int 16h ; wait for press key
 	jmp END
 
 ConfigSegment:    ; (0800h)
@@ -42,10 +45,21 @@ TEXT.SetVideoMode:
 	mov BYTE[BackHeight], 20
 ret
 
+BackColor:
+	mov ah, 06h        ; clear screen (06h)
+	mov al, 0
+	mov bh, 1000_1111b ; text color
+	mov ch, 0
+	mov cl, 0
+	mov dh, 40          ; number of lines scrooleds
+	mov dl, 80         ; collumns
+	int 10h
+ret
+
 PrintString:
 	mov ah, 09h
 	mov bh, [Pagination] ; video pagination
-	mov bl, 40           ; background color
+	mov bl, 1111_0001b   ; background color
 	mov cx, 1            ; number of character repeat
 	mov al, [si]
 	print:
@@ -66,4 +80,4 @@ MoveCursor:
 ret
 
 END:
-	jmp $
+	int 19h ; restart pc
