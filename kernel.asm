@@ -1,30 +1,27 @@
-[BITS 16]
-[ORG 0000h]
+[BITS 16]    ; archtecture system 
+[ORG 0x7C00] ; organize with 0x7C00 (MBR) to bios
 
 jmp OSMain
 
 BackWidth db 0
 BackHeight db 0
 Pagination db 0
-Welcome db "Biblioteca do Bairro!", 0
-
+Repl db "> ", 0
 
 OSMain:
 	call ConfigSegment
 	call ConfigStack
 	call TEXT.SetVideoMode
 	call BackColor
-	jmp ShowString
+	call ShowString
+	call MainLooping
 
-ShowString:
-	mov dh, 3 ; row
-	mov dl, 2 ; column
-	call MoveCursor ; move to (3, 2)
-	mov si, Welcome
+MainLooping:
+	call PointerBuffer
+	call ReadString
+	call PointerStringBuf
 	call PrintString
-	mov ah, 00
-	int 16h ; wait for press key
-	jmp END
+	call MainLooping
 
 ConfigSegment:    ; (0800h)
 	mov ax, es
@@ -48,19 +45,30 @@ ret
 BackColor:
 	mov ah, 06h        ; clear screen (06h)
 	mov al, 0
-	mov bh, 1000_1111b ; text color
+	mov bh, 0000_1111b ; text color
 	mov ch, 0
 	mov cl, 0
-	mov dh, 40          ; number of lines scrooleds
+	mov dh, 60         ; number of lines scrooleds
 	mov dl, 80         ; collumns
 	int 10h
 ret
 
-PrintString:
+ShowString:
+	mov dh, 20 ; row
+	mov dl, 0 ; column
+	call MoveCursor ; move to (3, 2)
+	mov si, Repl
+	call PrintRepl
+	mov ah, 00
+	;int 16h ; wait for press key
+	;jmp END
+
+PrintRepl:
 	mov ah, 09h
 	mov bh, [Pagination] ; video pagination
-	mov bl, 1111_0001b   ; background color
+	mov bl, 0000_1111b   ; background color
 	mov cx, 1            ; number of character repeat
+	mov ah, 0eh
 	mov al, [si]
 	print:
 		int 10h
@@ -70,7 +78,7 @@ PrintString:
 		mov al, [si]
 		cmp al, 0
 		jne print        ; jump not equal
-ret
+	ret
 
 MoveCursor:
 	mov ah, 02h ; move cursor
@@ -79,5 +87,41 @@ MoveCursor:
 	int 10h
 ret
 
+PointerBuffer:
+	mov di, buffer
+	ret
+
+PointerStringBuf:
+	mov si, buffer
+	ret
+
+PrintString:
+	mov ah, 0eh
+	mov al, [si]
+	log:
+		int 10h
+		inc si
+		mov al, [si]
+		cmp al, 0
+		jne log
+	ret
+
+ReadString:
+	mov ah, 00h
+	int 16h
+	mov ah, 0eh
+	int 10h
+	mov [di], al
+	inc di
+	cmp al, 0dh
+	jne ReadString
+	mov ah, 0eh
+	mov al, 0ah
+	int 10h
+ret
+
+buffer times 20 db 0 ; length = 20 (0 20 times)
+
 END:
-	int 19h ; restart pc
+	jmp $
+	;int 19h ; restart pc
