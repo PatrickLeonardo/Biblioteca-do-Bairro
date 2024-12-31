@@ -6,7 +6,6 @@ jmp OSMain
 BackWidth db 0
 BackHeight db 0
 Pagination db 0
-Repl db "> ", 0
 
 OSMain:
 	call ConfigSegment
@@ -55,9 +54,8 @@ ret
 
 ShowString:
 	mov dh, 20 ; row
-	mov dl, 0 ; column
+	mov dl, -1 ; column
 	call MoveCursor ; move to (3, 2)
-	mov si, Repl
 	call PrintRepl
 	mov ah, 00
 	;int 16h ; wait for press key
@@ -67,7 +65,7 @@ PrintRepl:
 	mov ah, 09h
 	mov bh, [Pagination] ; video pagination
 	mov bl, 0000_1111b   ; background color
-	mov cx, 1            ; number of character repeat
+	mov cx, -1           ; number of character repeat
 	mov ah, 0eh
 	mov al, [si]
 	print:
@@ -88,6 +86,15 @@ MoveCursor:
 ret
 
 PointerBuffer:
+	mov al, 0dh
+	int 10h
+	mov al, 20h
+	int 10h
+	mov al, 3eh
+	int 10h
+	mov al, 20h
+	int 10h
+	mov al, 0h
 	mov di, buffer
 	ret
 
@@ -97,7 +104,15 @@ PointerStringBuf:
 
 PrintString:
 	mov ah, 0eh
+	mov cx, 3
+
+	spaceloop:
+	    mov al, 20h
+	    int 10h
+        loop spaceloop
+        
 	mov al, [si]
+	
 	log:
 		int 10h
 		inc si
